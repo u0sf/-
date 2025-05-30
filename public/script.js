@@ -305,21 +305,30 @@ Always eager to learn and adapt to new technologies.`;
     }
 
     async showProjects() {
-        const projects = this.staticProjects;
-        if (!projects.length) {
-            this.printOutput('No projects found.');
-            return;
-        }
-        let projectsText = 'Projects:\n';
-        projects.forEach((project, idx) => {
-            projectsText +=
+        try {
+            const response = await fetch('/api/content/projects');
+            if (!response.ok) {
+                throw new Error('Failed to fetch projects');
+            }
+            const projects = await response.json();
+            if (!projects.length) {
+                this.printOutput('No projects found.');
+                return;
+            }
+            let projectsText = 'Projects:\n';
+            projects.forEach((project, idx) => {
+                projectsText +=
 `${idx + 1}. ${project.name}
    ${project.description}
    Technologies: ${project.technologies}
    Link: ${project.link ? project.link : 'N/A'}
 \n`;
-        });
-        this.printOutput(projectsText.trim());
+            });
+            this.printOutput(projectsText.trim());
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            this.printOutput('Failed to load projects. Please try again later.');
+        }
     }
 
     async showSkills() {
