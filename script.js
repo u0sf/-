@@ -180,8 +180,7 @@ class Terminal {
             sound: () => this.toggleSound(),
             clear: () => this.clearTerminal(),
             exit: () => this.exitWithPreloader(),
-            help: () => this.showHelp(),
-            admin: () => this.handleAdminAccess()
+            help: () => this.showHelp()
         };
 
         if (commands[command]) {
@@ -469,41 +468,6 @@ Attempts remaining: 5
         
         this.printOutput('CV download started. If it doesn\'t start automatically, click the link below:');
         this.printOutput(`<a href="${cvUrl}" target="_blank" class="terminal-link">Download CV</a>`);
-    }
-
-    async handleAdminAccess() {
-        this.printOutput('Enter admin password:');
-        this.input.type = 'password';
-        this.input.value = '';
-        this.input.focus();
-
-        // Create a promise to handle the password input
-        const passwordPromise = new Promise((resolve) => {
-            const handlePassword = (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const password = this.input.value;
-                    this.input.value = '';
-                    this.input.type = 'text';
-                    this.input.removeEventListener('keydown', handlePassword);
-                    resolve(password);
-                }
-            };
-            this.input.addEventListener('keydown', handlePassword);
-        });
-
-        const password = await passwordPromise;
-        
-        // Check password (you can change this to any password you want)
-        if (password === 'admin123') {
-            this.printOutput('Access granted. Redirecting to admin panel...');
-            setTimeout(() => {
-                window.location.href = '/admin';
-            }, 1000);
-        } else {
-            this.printOutput('Access denied. Invalid password.');
-            this.playSound(this.errorSound);
-        }
     }
 }
 
