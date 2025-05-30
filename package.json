@@ -1,0 +1,31 @@
+{
+  "name": "terminal-portfolio",
+  "version": "1.0.0",
+  "description": "Interactive terminal-style portfolio website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step required'",
+    "deploy": "gh-pages -d public"
+  },
+  "keywords": [
+    "portfolio",
+    "terminal",
+    "interactive",
+    "web"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "gh-pages": "^6.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
