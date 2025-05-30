@@ -68,6 +68,7 @@ class Terminal {
             { category: "AI/Other", name: "Prompt Engineering", level: 3 },
             { category: "AI/Other", name: "Artificial Intelligence", level: 3 },
             { category: "Programming Languages", name: "C++", level: 4 },
+            { category: "Programming Languages", name: "Python", level: 4 },
             { category: "Tools & Platforms", name: "Arduino IDE", level: 4 },
             { category: "Other", name: "Web Interface", level: 3 }
         ];
@@ -347,19 +348,18 @@ Always eager to learn and adapt to new technologies.`;
     showContact() {
         const contactText =
 `Contact Information:
-Email: <a href="mailto:youssef@example.com" class="terminal-link">youssef@example.com</a>
-Phone: <a href="tel:+15551234567" class="terminal-link">+1 555 123 4567</a>
-Location: City, Country`;
+Email: <a href="mailto:yusfrdwn@outlook.com" class="terminal-link">yusfrdwn@outlook.com</a>
+Phone: <a href="tel:+201557922729" class="terminal-link">+20 155 792 2729</a>
+Location: Egypt`;
         this.printOutput(contactText);
     }
 
     showSocial() {
         const socialText =
 `Social Media Links:
-LinkedIn: <a href="https://linkedin.com/in/youssef" class="terminal-link" target="_blank">linkedin.com/in/youssef</a>
-GitHub: <a href="https://github.com/youssef" class="terminal-link" target="_blank">github.com/youssef</a>
-Twitter: <a href="https://twitter.com/youssef" class="terminal-link" target="_blank">twitter.com/youssef</a>
-Portfolio: <a href="https://youssef.dev" class="terminal-link" target="_blank">youssef.dev</a>`;
+Instagram: <a href="https://instagram.com/_youssefradwan" class="terminal-link" target="_blank">Instagram</a>
+Telegram: <a href="https://t.me/+201557922729" class="terminal-link" target="_blank">Telegram</a>
+GitHub: <a href="https://github.com/u0sf" class="terminal-link" target="_blank">GitHub</a>`;
         this.printOutput(socialText);
     }
 
