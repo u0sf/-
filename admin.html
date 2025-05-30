@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Portfolio Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Terminal Portfolio Admin</h1>
+            <div class="admin-nav">
+                <button id="viewContent" class="nav-btn active">View Content</button>
+                <button id="addContent" class="nav-btn">Add Content</button>
+                <button id="settings" class="nav-btn">Settings</button>
+            </div>
+        </div>
+
+        <!-- Content Type Selection -->
+        <div id="contentTypeSelection" class="content-section">
+            <h2>Select Content Type</h2>
+            <div class="content-type-grid">
+                <div class="content-type-card" data-type="project">
+                    <i class="fas fa-code"></i>
+                    <h3>Project</h3>
+                    <p>Add a new project with details and links</p>
+                </div>
+                <div class="content-type-card" data-type="skill">
+                    <i class="fas fa-tools"></i>
+                    <h3>Skill</h3>
+                    <p>Add or update your skills</p>
+                </div>
+                <div class="content-type-card" data-type="cv">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>CV/Resume</h3>
+                    <p>Upload or update your CV</p>
+                </div>
+                <div class="content-type-card" data-type="social">
+                    <i class="fas fa-share-alt"></i>
+                    <h3>Social Link</h3>
+                    <p>Add or update social media links</p>
+                </div>
+                <div class="content-type-card" data-type="quote">
+                    <i class="fas fa-quote-right"></i>
+                    <h3>Quote</h3>
+                    <p>Add a new inspiring quote</p>
+                </div>
+                <div class="content-type-card" data-type="contact">
+                    <i class="fas fa-address-card"></i>
+                    <h3>Contact Info</h3>
+                    <p>Update contact information</p>
+                </div>
+                <div class="content-type-card" data-type="about">
+                    <i class="fas fa-user"></i>
+                    <h3>About</h3>
+                    <p>Update your bio and about section</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Forms -->
+        <div id="contentForms" class="content-section hidden">
+            <!-- Project Form -->
+            <form id="projectForm" class="content-form hidden">
+                <h2>Add New Project</h2>
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectTechnologies">Technologies (comma-separated)</label>
+                    <input type="text" id="projectTechnologies" name="technologies" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectLink">Project Link</label>
+                    <input type="url" id="projectLink" name="link" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Publish Project</button>
+                    <button type="button" class="btn-secondary" onclick="adminDashboard.showContentTypeSelection()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- CV Upload Form -->
+            <form id="cvForm" class="content-form hidden">
+                <h3>Upload CV</h3>
+                <input type="file" name="cv" accept=".pdf,.doc,.docx" required>
+                <button type="submit">Upload CV</button>
+            </form>
+
+            <!-- Skill Form -->
+            <form id="skillForm" class="content-form hidden">
+                <h2>Add New Skill</h2>
+                <div class="form-group">
+                    <label for="skillCategory">Category</label>
+                    <select id="skillCategory" name="category" required>
+                        <option value="frontend">Frontend</option>
+                        <option value="backend">Backend</option>
+                        <option value="embedded">Embedded/Hardware</option>
+                        <option value="tools">Tools & Platforms</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skillName">Skill Name</label>
+                    <input type="text" id="skillName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="skillLevel">Proficiency Level (1-5)</label>
+                    <input type="number" id="skillLevel" name="level" min="1" max="5" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Add Skill</button>
+                    <button type="button" class="btn-secondary" onclick="adminDashboard.showContentTypeSelection()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- Social Link Form -->
+            <form id="socialForm" class="content-form hidden">
+                <h2>Add Social Link</h2>
+                <div class="form-group">
+                    <label for="socialPlatform">Platform</label>
+                    <select id="socialPlatform" name="platform" required>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="github">GitHub</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="portfolio">Portfolio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="socialUrl">URL</label>
+                    <input type="url" id="socialUrl" name="url" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Add Social Link</button>
+                    <button type="button" class="btn-secondary" onclick="adminDashboard.showContentTypeSelection()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- Quote Form -->
+            <form id="quoteForm" class="content-form hidden">
+                <h2>Add New Quote</h2>
+                <div class="form-group">
+                    <label for="quoteText">Quote Text</label>
+                    <textarea id="quoteText" name="text" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="quoteAuthor">Author</label>
+                    <input type="text" id="quoteAuthor" name="author" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Add Quote</button>
+                    <button type="button" class="btn-secondary" onclick="adminDashboard.showContentTypeSelection()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- Contact Form -->
+            <form id="contactForm" class="content-form hidden">
+                <h2>Update Contact Information</h2>
+                <div class="form-group">
+                    <label for="contactEmail">Email</label>
+                    <input type="email" id="contactEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactPhone">Phone</label>
+                    <input type="tel" id="contactPhone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactLocation">Location</label>
+                    <input type="text" id="contactLocation" name="location" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Update Contact Info</button>
+                    <button type="button" class="btn-secondary" onclick="adminDashboard.showContentTypeSelection()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- About Form -->
+            <form id="aboutForm" class="content-form hidden">
+                <h2>Update About Section</h2>
+                <div class="form-group">
+                    <label for="aboutText">About Text</label>
+                    <textarea id="aboutText" name="text" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Update About</button>
+                    <button type="button" class="btn-secondary" onclick="adminDashboard.showContentTypeSelection()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Content List View -->
+        <div id="contentListView" class="content-section hidden">
+            <h2>Manage Content</h2>
+            <div class="content-filters">
+                <select id="contentTypeFilter">
+                    <option value="all">All Content</option>
+                    <option value="project">Projects</option>
+                    <option value="skill">Skills</option>
+                    <option value="social">Social Links</option>
+                    <option value="quote">Quotes</option>
+                </select>
+                <input type="text" id="contentSearch" placeholder="Search content...">
+            </div>
+            <div id="contentList" class="content-list">
+                <!-- Content items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html> 
