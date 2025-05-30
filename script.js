@@ -14,6 +14,63 @@ class Terminal {
         this.setupEventListeners();
         this.handlePreloader();
         this.initializeTerminal();
+        this.staticProjects = [
+            {
+                name: "Lexi – Smart Emotional Robot (Under Development)",
+                description: "An interactive emotional robot that expresses different moods using an OLED display, buzzer tones, and RGB lighting. Built with ESP32 and designed for responsive interactions using ultrasonic sensors and touch.",
+                technologies: "ESP32, Arduino IDE, C++, OLED, Buzzer, RGB LED, Ultrasonic Sensor, Touch Sensor",
+                link: ""
+            },
+            {
+                name: "Morse Code Decoder",
+                description: "An Arduino-based project that lets users input Morse code using two buttons and displays the decoded characters on an OLED screen.",
+                technologies: "Arduino IDE, C++, U8g2lib, Buttons, OLED",
+                link: "https://github.com/u0sf/Morse-Code-Decoder"
+            },
+            {
+                name: "Bus Safety Project",
+                description: "A system that detects seat occupancy in school buses to ensure no student is left behind. Uses sensors on seats and an ultrasonic scanner for final checks.",
+                technologies: "Arduino IDE, C++, OneSheeld, Sensors, Ultrasonic Scanner",
+                link: "https://github.com/u0sf/Bus-Safety-Project"
+            },
+            {
+                name: "Multi-Game Hub",
+                description: "A handheld ESP32-based gaming device with OLED display and multiple simple games like Rock-Paper-Scissors and Guess the Number.",
+                technologies: "ESP32, Arduino IDE, C++, OLED",
+                link: "https://github.com/u0sf/Multi-Game-Hub"
+            },
+            {
+                name: "ViVision",
+                description: "Wi-Fi color detection system using TCS34725 sensor and ESP8266 that serves real-time RGB values on a web interface.",
+                technologies: "ESP8266, Arduino IDE, C++, TCS34725, Web Interface",
+                link: "https://github.com/u0sf/ViVision"
+            },
+            {
+                name: "DarkStrike (Under Testing)",
+                description: "An ESP32-based tool for Wi-Fi security testing, featuring deauthentication and Evil Twin attacks through OLED menu navigation.",
+                technologies: "ESP32, Arduino IDE, C++, OLED, Wi-Fi Security",
+                link: "https://github.com/u0sf/DarkStrike"
+            }
+        ];
+
+        this.staticSkills = [
+            { category: "Tools & Platforms", name: "3D Design", level: 3 },
+            { category: "Frontend", name: "Website Design", level: 3 },
+            { category: "Embedded/Hardware", name: "Arduino", level: 4 },
+            { category: "Embedded/Hardware", name: "ESP32", level: 4 },
+            { category: "Embedded/Hardware", name: "ESP8266", level: 3 },
+            { category: "Embedded/Hardware", name: "Sensors", level: 3 },
+            { category: "Embedded/Hardware", name: "OLED Displays", level: 3 },
+            { category: "Embedded/Hardware", name: "Ultrasonic Sensors", level: 3 },
+            { category: "Embedded/Hardware", name: "Touch Sensors", level: 2 },
+            { category: "Embedded/Hardware", name: "TCS34725", level: 2 },
+            { category: "Embedded/Hardware", name: "OneSheeld", level: 2 },
+            { category: "AI/Other", name: "Prompt Engineering", level: 3 },
+            { category: "AI/Other", name: "Artificial Intelligence", level: 3 },
+            { category: "Programming Languages", name: "C++", level: 4 },
+            { category: "Tools & Platforms", name: "Arduino IDE", level: 4 },
+            { category: "Other", name: "Web Interface", level: 3 }
+        ];
     }
 
     initializeTerminal() {
@@ -248,55 +305,43 @@ Always eager to learn and adapt to new technologies.`;
     }
 
     async showProjects() {
-        try {
-            const response = await fetch('/api/content');
-            const content = await response.json();
-            const projects = content.filter(item => item.type === 'project');
-            if (projects.length === 0) {
-                this.printOutput('No projects found.');
-                return;
-            }
-            let projectsText = 'Projects:\n';
-            projects.forEach((project, idx) => {
-                projectsText +=
+        const projects = this.staticProjects;
+        if (!projects.length) {
+            this.printOutput('No projects found.');
+            return;
+        }
+        let projectsText = 'Projects:\n';
+        projects.forEach((project, idx) => {
+            projectsText +=
 `${idx + 1}. ${project.name}
    ${project.description}
    Technologies: ${project.technologies}
-   Link: ${project.link}
+   Link: ${project.link ? project.link : 'N/A'}
 \n`;
-            });
-            this.printOutput(projectsText.trim());
-        } catch (error) {
-            this.printOutput('Failed to load projects.');
-        }
+        });
+        this.printOutput(projectsText.trim());
     }
 
     async showSkills() {
-        try {
-            const response = await fetch('/api/content');
-            const content = await response.json();
-            const skills = content.filter(item => item.type === 'skill');
-            if (skills.length === 0) {
-                this.printOutput('No skills found.');
-                return;
-            }
-            // Group skills by category
-            const categories = {};
-            skills.forEach(skill => {
-                if (!categories[skill.category]) categories[skill.category] = [];
-                categories[skill.category].push(`${skill.name} (Level ${skill.level})`);
-            });
-            let skillsText = 'Skills:';
-            for (const [cat, list] of Object.entries(categories)) {
-                skillsText += `\n${cat.charAt(0).toUpperCase() + cat.slice(1)}:`;
-                list.forEach(skill => {
-                    skillsText += `\n  • ${skill}`;
-                });
-            }
-            this.printOutput(skillsText);
-        } catch (error) {
-            this.printOutput('Failed to load skills.');
+        const skills = this.staticSkills;
+        if (!skills.length) {
+            this.printOutput('No skills found.');
+            return;
         }
+        // Group skills by category
+        const categories = {};
+        skills.forEach(skill => {
+            if (!categories[skill.category]) categories[skill.category] = [];
+            categories[skill.category].push(`${skill.name} (Level ${skill.level})`);
+        });
+        let skillsText = 'Skills:';
+        for (const [cat, list] of Object.entries(categories)) {
+            skillsText += `\n${cat}:`;
+            list.forEach(skill => {
+                skillsText += `\n  • ${skill}`;
+            });
+        }
+        this.printOutput(skillsText);
     }
 
     showContact() {
