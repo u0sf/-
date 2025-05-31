@@ -21,6 +21,7 @@ body {
     width: 100vw;
     overflow: hidden;
     transition: all 0.3s ease;
+    cursor: auto;
 }
 
 /* Preloader Styles */
@@ -280,30 +281,23 @@ body {
     to { width: 100% }
 }
 
+/* Link Styling */
 .terminal-link {
     color: inherit;
-    text-decoration: underline;
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+    transition: all 0.2s ease;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    display: inline-block;
+    padding: 2px 0;
 }
 
 .terminal-link:hover {
+    border-bottom: 1px solid currentColor;
     opacity: 0.8;
 }
 
-/* Add a subtle animation for links */
-.terminal-link:active {
-    transform: scale(0.98);
-}
-
-/* Style for email and phone links */
-.terminal-link[href^="mailto:"],
-.terminal-link[href^="tel:"] {
-    text-decoration: none;
-    border-bottom: 1px dotted currentColor;
-}
-
-/* Ensure links maintain theme colors */
+/* Ensure links are clickable and maintain theme colors */
 .theme-default .terminal-link {
     color: var(--theme-green);
 }
@@ -374,4 +368,237 @@ body {
         transform: translateY(40px) rotateZ(30deg) scale(0.7);
         filter: blur(2px);
     }
+}
+
+/* Project Cards Styling */
+.projects-container {
+    margin: 1rem 0;
+    padding: 0.5rem;
+}
+
+.section-title {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--accent-color);
+    padding-bottom: 0.5rem;
+}
+
+.project-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.project-card:hover {
+    transform: translateX(5px);
+}
+
+.project-title {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.project-description {
+    color: var(--text-color);
+    margin: 0.5rem 0;
+    line-height: 1.4;
+}
+
+.project-tech {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.tech-label {
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+}
+
+.tech-stack {
+    color: var(--text-color);
+}
+
+.project-link {
+    display: inline-block;
+    color: var(--accent-color);
+    text-decoration: none;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--accent-color);
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.project-link:hover {
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+/* Command Output Styling */
+.command-output {
+    margin: 0.5rem 0;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.command-output a {
+    color: var(--accent-color);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-color);
+}
+
+.command-output a:hover {
+    border-bottom: 1px solid var(--accent-color);
+}
+
+/* Terminal Input Styling */
+#command-input {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    outline: none;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+#command-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Autocomplete Styling */
+#autocomplete-container {
+    position: absolute;
+    background: var(--background-color);
+    border: 1px solid var(--terminal-border);
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 2px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.autocomplete-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: var(--theme-green);
+    transition: all 0.2s ease;
+}
+
+.autocomplete-item:hover {
+    background-color: rgba(0, 255, 0, 0.1);
+    color: var(--theme-green);
+}
+
+/* Ensure autocomplete is visible in all themes */
+.theme-white .autocomplete-item {
+    color: var(--theme-white);
+}
+
+.theme-amber .autocomplete-item {
+    color: var(--theme-amber);
+}
+
+.theme-cyan .autocomplete-item {
+    color: var(--theme-cyan);
+}
+
+.theme-white .autocomplete-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-amber .autocomplete-item:hover {
+    background-color: rgba(255, 176, 0, 0.1);
+}
+
+.theme-cyan .autocomplete-item:hover {
+    background-color: rgba(0, 255, 255, 0.1);
+}
+
+/* Terminal Container */
+#terminal {
+    position: relative;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* CV Container Styling */
+.cv-container {
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
+.cv-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.cv-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.cv-button:hover {
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+.cv-button .icon {
+    margin-right: 0.5rem;
+}
+
+.cv-button.download {
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+.cv-button.download:hover {
+    background: transparent;
+    color: var(--text-color);
+}
+
+/* Remove error-message styling */
+.error-message {
+    color: inherit;
+    padding: 0;
+    margin: 0.5rem 0;
+    border: none;
+    background: none;
+    animation: none;
+}
+
+@keyframes shake {
+    /* removed */
+}
+
+.theme-white .error-message,
+.theme-amber .error-message,
+.theme-cyan .error-message {
+    color: inherit;
+    border-left: none;
+}
+
+.terminal-link, a, button, .cv-button {
+    cursor: pointer;
 } 

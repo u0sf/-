@@ -10,6 +10,15 @@ class Terminal {
         this.themes = ['default', 'white', 'amber', 'cyan'];
         this.inGame = false; // Track if in mini-game
         this.hackerGame = null; // Game state
+        this.fastMode = false; // Fast mode for skipping typing animation
+        this.idleTimeout = null;
+        this.idleMessages = [
+            "Still there, Commander? 🛰️",
+            "Tip: Type 'projects' to explore the mission log.",
+            "Need help? Try 'help' or 'clear' to start fresh.",
+            "The console awaits your next command...",
+            "Mission paused. Awaiting further instructions."
+        ];
         this.setupAudio();
         this.setupEventListeners();
         this.handlePreloader();
@@ -72,30 +81,59 @@ class Terminal {
             { category: "Tools & Platforms", name: "Arduino IDE", level: 4 },
             { category: "Other", name: "Web Interface", level: 3 }
         ];
+
+        this.availableCommands = [
+            'about', 'skills', 'projects', 'cv', 'contact', 'social',
+            'run', 'quote', 'theme', 'sound', 'clear', 'exit', 'help', 'fast'
+        ];
+        this.lastSession = localStorage.getItem('lastSession');
+        this.resetIdleTimer();
     }
 
     initializeTerminal() {
-        // Set initial theme
         document.body.className = `theme-${this.currentTheme}`;
-        
-        // Ensure input is focused
         this.input.focus();
-        
-        // Add click handler to keep input focused
         this.terminal.addEventListener('click', () => {
             this.input.focus();
         });
+        // Unified welcome message
+        this.printOutput('>> Welcome to Youssef\'s Terminal Portfolio');
+        const hour = new Date().getHours();
+        let greeting = '';
+        if (hour < 12) {
+            greeting = '>> Good morning, Commander Youssef ☕';
+        } else if (hour < 18) {
+            greeting = '>> Mission active. Welcome back, Commander 👨‍🚀';
+        } else {
+            greeting = '>> Evening mission initiated. Stay sharp, Captain 🌙';
+        }
+        this.printOutput(greeting);
+        this.printOutput("Type 'help' to see available commands.");
+        if (this.lastSession) {
+            this.printOutput(`Welcome back! Last time you checked out '${this.lastSession}'.`);
+        }
     }
 
     setupAudio() {
         this.typeSound = document.getElementById('typeSound');
         this.commandSound = document.getElementById('commandSound');
         this.errorSound = document.getElementById('errorSound');
+        this.hoverSound = document.getElementById('hoverSound');
+
+        // Add hover sound to all links
+        document.addEventListener('mouseover', (e) => {
+            const target = e.target;
+            if ((target.tagName === 'A' || target.classList.contains('terminal-link')) && this.soundEnabled) {
+                this.hoverSound.currentTime = 0;
+                this.hoverSound.volume = 0.3; // Reduce volume to 30%
+                this.hoverSound.play().catch(() => {});
+            }
+        });
     }
 
     setupEventListeners() {
-        // Handle command input
         this.input.addEventListener('keydown', (e) => {
+            this.resetIdleTimer();
             if (e.key === 'Enter') {
                 e.preventDefault();
                 this.handleCommand();
@@ -109,18 +147,13 @@ class Terminal {
                 this.playSound(this.typeSound);
             }
         });
-
-        // Animate avatar on typing
         this.input.addEventListener('input', () => {
+            this.resetIdleTimer();
             this.animateAvatar();
         });
-
-        // Keep input focused when clicking anywhere in the terminal
         this.terminal.addEventListener('click', () => {
             this.input.focus();
         });
-
-        // Prevent default browser behavior for arrow keys
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                 e.preventDefault();
@@ -155,24 +188,32 @@ class Terminal {
     }
 
     handleCommand() {
+        this.resetIdleTimer();
         const command = this.input.value.trim().toLowerCase();
         if (command) {
             this.commandHistory.push(command);
             this.historyIndex = this.commandHistory.length;
             this.printOutput(`> ${command}`);
-            
-            // Don't execute command if we're waiting for admin password
+            localStorage.setItem('lastSession', command);
             if (this.input.type === 'password') {
                 return;
             }
-            
+            if (command === 'fast') {
+                this.fastMode = !this.fastMode;
+                this.printOutput(`Fast mode ${this.fastMode ? 'enabled' : 'disabled'}.`);
+                this.input.value = '';
+                this.input.removeAttribute('title');
+                this.input.focus();
+                return;
+            }
             this.executeCommand(command);
             this.playSound(this.commandSound);
             this.animateAvatar();
         }
         this.input.value = '';
-        // Keep focus on input after command execution
-        this.input.focus();
+        this.input.removeAttribute('title');
+        this.input.blur();
+        setTimeout(() => this.input.focus(), 0);
     }
 
     navigateHistory(direction) {
@@ -199,11 +240,7 @@ class Terminal {
     printOutput(text) {
         const output = document.createElement('div');
         output.className = 'command-output';
-        
-        // Convert URLs to clickable links
-        const formattedText = this.convertUrlsToLinks(text);
-        output.innerHTML = formattedText;
-        
+        output.innerHTML = text.replace(/\n/g, '<br>');
         this.terminal.insertBefore(output, this.input.parentElement);
         this.terminal.scrollTop = this.terminal.scrollHeight;
     }
@@ -225,6 +262,7 @@ class Terminal {
             this.handleHackerGameInput(command);
             return;
         }
+
         const commands = {
             about: () => this.showAbout(),
             skills: () => this.showSkills(),
@@ -244,7 +282,25 @@ class Terminal {
         if (commands[command]) {
             commands[command]();
         } else {
-            this.printOutput(`Command not found: ${command}. Type 'help' for available commands.`);
+            const fun404Messages = [
+                "Command not found. Are you trying to hack me? 😅",
+                "404: That command has gone rogue.",
+                "Error: Command not found. Did you mean 'help'?",
+                "Command not recognized. Maybe try 'help' to see what's available?",
+                "Oops! That command doesn't exist in this universe.",
+                "This command is lost in cyberspace! 🚀",
+                "You just discovered a secret... but it's just an error! 🕵️‍♂️",
+                "If you find this command, let me know! 🦄",
+                "Not all who wander are valid commands.",
+                "404 brain not found. Try again! 🤖",
+                "That command is on vacation. Try another! 🌴",
+                "Nice try! But that's not a real command. 😜",
+                "I asked the code, and it said 'nope.'",
+                "This command is as real as unicorns! 🦄",
+                "You broke the matrix... or maybe just typed it wrong! 🕶️"
+            ];
+            const randomMessage = fun404Messages[Math.floor(Math.random() * fun404Messages.length)];
+            this.printOutput(randomMessage);
             this.playSound(this.errorSound);
         }
     }
@@ -306,21 +362,17 @@ Always eager to learn and adapt to new technologies.`;
     }
 
     async showProjects() {
-        const projects = this.staticProjects;
-        if (!projects.length) {
-            this.printOutput('No projects found.');
-            return;
+        let projectsText = '>> Projects:';
+        for (const project of this.staticProjects) {
+            projectsText += `\n  -- ${project.name}\n     ${project.description}`;
+            if (project.technologies) {
+                projectsText += `\n     Technologies: ${project.technologies}`;
+            }
+            if (project.link) {
+                projectsText += `\n     Link: <a href=\"${project.link}\" target=\"_blank\" class=\"terminal-link\">${project.link}</a>`;
+            }
         }
-        let projectsText = 'Projects:\n';
-        projects.forEach((project, idx) => {
-            projectsText +=
-`${idx + 1}. ${project.name}
-   ${project.description}
-   Technologies: ${project.technologies}
-   Link: ${project.link ? project.link : 'N/A'}
-\n`;
-        });
-        this.printOutput(projectsText.trim());
+        this.printOutput(projectsText);
     }
 
     async showSkills() {
@@ -335,11 +387,11 @@ Always eager to learn and adapt to new technologies.`;
             if (!categories[skill.category]) categories[skill.category] = [];
             categories[skill.category].push(`${skill.name} (Level ${skill.level})`);
         });
-        let skillsText = 'Skills:';
+        let skillsText = '>> Skills:';
         for (const [cat, list] of Object.entries(categories)) {
-            skillsText += `\n${cat}:`;
+            skillsText += `\n  -- ${cat}:`;
             list.forEach(skill => {
-                skillsText += `\n  • ${skill}`;
+                skillsText += `\n     • ${skill}`;
             });
         }
         this.printOutput(skillsText);
@@ -355,11 +407,12 @@ Location: Egypt`;
     }
 
     showSocial() {
-        const socialText =
-`Social Media Links:
-Instagram: <a href="https://instagram.com/_youssefradwan" class="terminal-link" target="_blank">Instagram</a>
-Telegram: <a href="https://t.me/+201557922729" class="terminal-link" target="_blank">Telegram</a>
-GitHub: <a href="https://github.com/u0sf" class="terminal-link" target="_blank">GitHub</a>`;
+        const socialText = `Social Media Links:
+• GitHub: <a href=\"https://github.com/u0sf\" target=\"_blank\" class=\"terminal-link\">GitHub</a>
+• Instagram: <a href=\"https://instagram.com/_youssefradwan\" target=\"_blank\" class=\"terminal-link\">Instagram</a>
+• WhatsApp: <a href=\"https://wa.me/201557922729\" target=\"_blank\" class=\"terminal-link\">WhatsApp</a>
+• Telegram: <a href=\"https://t.me/+201557922729\" target=\"_blank\" class=\"terminal-link\">Telegram</a>
+• Snapchat: <a href=\"https://www.snapchat.com/add/uosf.r\" target=\"_blank\" class=\"terminal-link\">Snapchat</a>`;
         this.printOutput(socialText);
     }
 
@@ -500,19 +553,28 @@ Attempts remaining: 5
     }
 
     downloadCV() {
-        const cvUrl = '/assets/cv.pdf'; // Update this path to your actual CV file location
-        this.printOutput('Downloading CV...');
-        
-        // Create a temporary link element
-        const link = document.createElement('a');
-        link.href = cvUrl;
-        link.download = 'Youssef_CV.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        this.printOutput('CV download started. If it doesn\'t start automatically, click the link below:');
-        this.printOutput(`<a href="${cvUrl}" target="_blank" class="terminal-link">Download CV</a>`);
+        const cvUrl = 'https://your-cv-url.com/cv.pdf'; // Replace with your actual CV URL
+        this.printOutput('<div class="cv-container">');
+        this.printOutput('<h2 class="section-title">📄 CV Options</h2>');
+        this.printOutput(`
+            <div class="cv-options">
+                <a href="${cvUrl}" target="_blank" class="cv-button download">
+                    <span class="icon">⬇️</span> Download CV
+                </a>
+                <button onclick="window.open('${cvUrl}', '_blank')" class="cv-button preview">
+                    <span class="icon">👁️</span> Preview CV
+                </button>
+            </div>
+        `);
+        this.printOutput('</div>');
+    }
+
+    resetIdleTimer() {
+        if (this.idleTimeout) clearTimeout(this.idleTimeout);
+        this.idleTimeout = setTimeout(() => {
+            const msg = this.idleMessages[Math.floor(Math.random() * this.idleMessages.length)];
+            this.printOutput(msg);
+        }, 30000);
     }
 }
 
