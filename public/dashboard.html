@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Portfolio Dashboard</h2>
+            <form id="loginForm" class="login-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container" style="display: none;">
+        <!-- Navigation -->
+        <nav class="dashboard-nav">
+            <div class="nav-header">
+                <h2>Dashboard</h2>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+            <ul class="nav-links">
+                <li data-section="projects" class="active">
+                    <i class="fas fa-project-diagram"></i> Projects
+                </li>
+                <li data-section="skills">
+                    <i class="fas fa-code"></i> Skills
+                </li>
+                <li data-section="about">
+                    <i class="fas fa-user"></i> About
+                </li>
+                <li data-section="cv">
+                    <i class="fas fa-file-alt"></i> CV
+                </li>
+                <li data-section="contact">
+                    <i class="fas fa-envelope"></i> Contact
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard-content">
+            <!-- Projects Section -->
+            <section id="projectsSection" class="dashboard-section active">
+                <h2>Projects</h2>
+                <button id="addProjectBtn" class="add-btn">
+                    <i class="fas fa-plus"></i> Add Project
+                </button>
+                <div id="projectsList" class="items-list">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skillsSection" class="dashboard-section">
+                <h2>Skills</h2>
+                <button id="addSkillBtn" class="add-btn">
+                    <i class="fas fa-plus"></i> Add Skill
+                </button>
+                <div id="skillsList" class="items-list">
+                    <!-- Skills will be loaded here -->
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="aboutSection" class="dashboard-section">
+                <h2>About</h2>
+                <form id="aboutForm" class="edit-form">
+                    <div class="form-group">
+                        <label for="aboutText">About Text</label>
+                        <textarea id="aboutText" required></textarea>
+                    </div>
+                    <button type="submit">Save About Info</button>
+                </form>
+            </section>
+
+            <!-- CV Section -->
+            <section id="cvSection" class="dashboard-section">
+                <h2>CV Management</h2>
+                <div class="cv-management">
+                    <div class="current-cv">
+                        <h3>Current CV</h3>
+                        <div id="currentCvInfo" class="cv-info">
+                            <!-- Current CV info will be loaded here -->
+                        </div>
+                    </div>
+                    <form id="cvUploadForm" class="edit-form">
+                        <div class="form-group">
+                            <label for="cvFile">Upload New CV (PDF only)</label>
+                            <input type="file" id="cvFile" accept=".pdf" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cvTitle">CV Title</label>
+                            <input type="text" id="cvTitle" placeholder="e.g., Youssef's CV 2024" required>
+                        </div>
+                        <button type="submit">Upload CV</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contactSection" class="dashboard-section">
+                <h2>Contact</h2>
+                <form id="contactForm" class="edit-form">
+                    <div class="form-group">
+                        <label for="telegramBotToken">Telegram Bot Token</label>
+                        <input type="text" id="telegramBotToken" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telegramChatId">Telegram Chat ID</label>
+                        <input type="text" id="telegramChatId" required>
+                    </div>
+                    <button type="submit">Save Contact Info</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+
+    <!-- Project Modal -->
+    <div id="projectModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="closeProjectModal">&times;</span>
+            <h2 id="modalTitle">Add Project</h2>
+            <form id="projectForm" class="edit-form">
+                <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input type="text" id="projectName" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectTechnologies">Technologies (comma-separated)</label>
+                    <input type="text" id="projectTechnologies">
+                </div>
+                <div class="form-group">
+                    <label>Links</label>
+                    <div id="projectLinks">
+                        <!-- Dynamic link fields here -->
+                    </div>
+                    <button type="button" id="addLinkBtn" class="add-btn" style="margin-top:10px;">+ Add Link</button>
+                </div>
+                <button type="submit" id="saveProjectBtn">Save Project</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Skills Modal -->
+    <div id="skillModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" id="closeSkillModal">&times;</span>
+            <h2 id="skillModalTitle">Add Skill</h2>
+            <form id="skillForm" class="edit-form">
+                <div class="form-group">
+                    <label for="skillCategory">Category</label>
+                    <input type="text" id="skillCategory" placeholder="e.g., Programming, Design, etc." required>
+                </div>
+                <div class="form-group">
+                    <label for="skillName">Skill Name</label>
+                    <input type="text" id="skillName" placeholder="e.g., JavaScript, Photoshop, etc." required>
+                </div>
+                <div class="form-group">
+                    <label for="skillLevel">Skill Level (1-5)</label>
+                    <select id="skillLevel" required>
+                        <option value="1">1 - Beginner</option>
+                        <option value="2">2 - Intermediate</option>
+                        <option value="3" selected>3 - Advanced</option>
+                        <option value="4">4 - Expert</option>
+                        <option value="5">5 - Master</option>
+                    </select>
+                </div>
+                <button type="submit" id="saveSkillBtn">Save Skill</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

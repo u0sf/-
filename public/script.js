@@ -13,11 +13,10 @@ class Terminal {
         this.fastMode = false; // Fast mode for skipping typing animation
         this.idleTimeout = null;
         this.idleMessages = [
-            "Still there, Commander? 🛰️",
+            "Still there, Commander?",
             "Tip: Type 'projects' to explore the mission log.",
             "Need help? Try 'help' or 'clear' to start fresh.",
-            "The console awaits your next command...",
-            "Mission paused. Awaiting further instructions."
+            "The console awaits your next command..."
         ];
         this.setupAudio();
         this.setupEventListeners();
@@ -84,7 +83,7 @@ class Terminal {
 
         this.availableCommands = [
             'about', 'skills', 'projects', 'cv', 'contact', 'social',
-            'run', 'quote', 'theme', 'sound', 'clear', 'exit', 'help', 'fast'
+            'run', 'quote', 'theme', 'sound', 'clear', 'exit', 'help', 'fast', 'gui'
         ];
         this.lastSession = localStorage.getItem('lastSession');
         this.resetIdleTimer();
@@ -98,16 +97,6 @@ class Terminal {
         });
         // Unified welcome message
         this.printOutput('>> Welcome to Youssef\'s Terminal Portfolio');
-        const hour = new Date().getHours();
-        let greeting = '';
-        if (hour < 12) {
-            greeting = '>> Good morning, Commander Youssef ☕';
-        } else if (hour < 18) {
-            greeting = '>> Mission active. Welcome back, Commander 👨‍🚀';
-        } else {
-            greeting = '>> Evening mission initiated. Stay sharp, Captain 🌙';
-        }
-        this.printOutput(greeting);
         this.printOutput("Type 'help' to see available commands.");
         if (this.lastSession) {
             this.printOutput(`Welcome back! Last time you checked out '${this.lastSession}'.`);
@@ -276,48 +265,46 @@ class Terminal {
             sound: () => this.toggleSound(),
             clear: () => this.clearTerminal(),
             exit: () => this.exitWithPreloader(),
-            help: () => this.showHelp()
+            help: () => this.showHelp(),
+            gui: () => this.switchToGUI(),
+            admin: () => this.accessDashboard()
         };
 
         if (commands[command]) {
             commands[command]();
         } else {
-            const fun404Messages = [
-                "Command not found. Are you trying to hack me? 😅",
-                "404: That command has gone rogue.",
-                "Error: Command not found. Did you mean 'help'?",
-                "Command not recognized. Maybe try 'help' to see what's available?",
-                "Oops! That command doesn't exist in this universe.",
-                "This command is lost in cyberspace! 🚀",
-                "You just discovered a secret... but it's just an error! 🕵️‍♂️",
-                "If you find this command, let me know! 🦄",
-                "Not all who wander are valid commands.",
-                "404 brain not found. Try again! 🤖",
-                "That command is on vacation. Try another! 🌴",
-                "Nice try! But that's not a real command. 😜",
-                "I asked the code, and it said 'nope.'",
-                "This command is as real as unicorns! 🦄",
-                "You broke the matrix... or maybe just typed it wrong! 🕶️"
+            const errorMessages = [
+                "Command not found. Are you trying to hack me?",
+                "This command is lost in cyberspace!",
+                "You just discovered a secret... but it's just an error!",
+                "If you find this command, let me know!",
+                "404 brain not found. Try again!",
+                "That command is on vacation. Try another!",
+                "Nice try! But that's not a real command.",
+                "This command is as real as unicorns!",
+                "You broke the matrix... or maybe just typed it wrong!"
             ];
-            const randomMessage = fun404Messages[Math.floor(Math.random() * fun404Messages.length)];
+            const randomMessage = errorMessages[Math.floor(Math.random() * errorMessages.length)];
             this.printOutput(randomMessage);
             this.playSound(this.errorSound);
         }
     }
 
     async exitWithPreloader() {
-        // Animate breaking letters and remove each command-output line by line (bottom to top), leave welcome-message
         const terminal = document.getElementById('terminal');
         if (terminal) {
             // Get all .command-output lines in order
             const outputs = Array.from(terminal.querySelectorAll('.command-output'));
-            outputs.reverse(); // Start from the last
-            for (let lineIdx = 0; lineIdx < outputs.length; lineIdx++) {
-                const block = outputs[lineIdx];
+            
+            // Keep only the first two lines
+            const linesToRemove = outputs.slice(2);
+            
+            for (let lineIdx = 0; lineIdx < linesToRemove.length; lineIdx++) {
+                const block = linesToRemove[lineIdx];
                 // Split each line into spans per letter
                 const lines = block.innerText.split('\n');
                 block.innerHTML = lines.map(line => {
-                    return line.split('').map((char, i) => `<span class=\"break-letter\" data-idx=\"${i}\">${char === ' ' ? '&nbsp;' : char}</span>`).join('');
+                    return line.split('').map((char, i) => `<span class="break-letter" data-idx="${i}">${char === ' ' ? '&nbsp;' : char}</span>`).join('');
                 }).join('<br>');
                 // Animate from right to left for this block
                 const allSpans = Array.from(block.querySelectorAll('.break-letter'));
@@ -329,7 +316,7 @@ class Terminal {
                         });
                     }, (maxIdx - idx) * 40);
                 }
-                // انتظر حتى ينتهي الأنميشن لهذا السطر قبل الانتقال للسطر الذي فوقه
+                // Wait for animation to complete before removing
                 await new Promise(res => setTimeout(res, (maxIdx + 1) * 40 + 400));
                 block.remove();
             }
@@ -349,7 +336,8 @@ class Terminal {
 - theme      → Cycle through available themes
 - sound      → Toggle sound effects
 - clear      → Clear the terminal screen
-- exit       → Exit or reload the site`;
+- exit       → Exit or reload the site
+- gui        → Switch to GUI mode`;
         this.printOutput(helpText);
     }
 
@@ -363,12 +351,14 @@ Always eager to learn and adapt to new technologies.`;
 
     async showProjects() {
         let projectsText = '>> Projects:';
-        for (const project of this.staticProjects) {
+        for (const project of this.getProjects()) {
             projectsText += `\n  -- ${project.name}\n     ${project.description}`;
             if (project.technologies) {
                 projectsText += `\n     Technologies: ${project.technologies}`;
             }
-            if (project.link) {
+            if (project.links && Array.isArray(project.links) && project.links.length) {
+                projectsText += '\n     Links: ' + project.links.map(link => `<a href="${link.url}" target="_blank" class="terminal-link">${link.label}</a>`).join(' | ');
+            } else if (project.link) {
                 projectsText += `\n     Link: <a href=\"${project.link}\" target=\"_blank\" class=\"terminal-link\">${project.link}</a>`;
             }
         }
@@ -376,7 +366,7 @@ Always eager to learn and adapt to new technologies.`;
     }
 
     async showSkills() {
-        const skills = this.staticSkills;
+        const skills = this.getSkills();
         if (!skills.length) {
             this.printOutput('No skills found.');
             return;
@@ -441,11 +431,17 @@ Location: Egypt`;
     }
 
     clearTerminal() {
-        const outputs = this.terminal.getElementsByClassName('command-output');
-        while (outputs.length > 0) {
-            outputs[0].remove();
-        }
-        // Keep focus on input after clearing
+        const terminal = document.getElementById('terminal');
+        const commandOutputs = Array.from(terminal.querySelectorAll('.command-output'));
+        
+        // Keep only the first two lines
+        commandOutputs.forEach((output, index) => {
+            if (index >= 2) {
+                output.remove();
+            }
+        });
+        
+        this.input.value = '';
         this.input.focus();
     }
 
@@ -529,7 +525,7 @@ Attempts remaining: 5
             }
         }
         this.printOutput(
-            `Hint: ${'●'.repeat(correctPlace)}${'○'.repeat(correctChar)}${'-'.repeat(4-correctPlace-correctChar)}\n` +
+            `Hint: ${'&bull;'.repeat(correctPlace)}${'&bull;'.repeat(correctChar)}${'-'.repeat(4-correctPlace-correctChar)}\n` +
             `Feedback: ${correctPlace} correct & in place, ${correctChar} correct but misplaced.\n` +
             `Attempt ${game.attempts} of ${game.maxAttempts}`
         );
@@ -559,10 +555,10 @@ Attempts remaining: 5
         this.printOutput(`
             <div class="cv-options">
                 <a href="${cvUrl}" target="_blank" class="cv-button download">
-                    <span class="icon">⬇️</span> Download CV
+                    <span class="icon">Download</span> Download CV
                 </a>
                 <button onclick="window.open('${cvUrl}', '_blank')" class="cv-button preview">
-                    <span class="icon">👁️</span> Preview CV
+                    <span class="icon">Preview</span> Preview CV
                 </button>
             </div>
         `);
@@ -576,9 +572,412 @@ Attempts remaining: 5
             this.printOutput(msg);
         }, 30000);
     }
+
+    switchToGUI() {
+        this.printOutput('>> Switching to GUI mode... Stand by...');
+        // Store current mode in localStorage
+        localStorage.setItem('portfolioMode', 'gui');
+        // Create and show GUI interface
+        this.createGUI();
+    }
+
+    createGUI() {
+        // Create GUI container
+        const guiContainer = document.createElement('div');
+        guiContainer.className = 'gui-container';
+        
+        // Add background animation container
+        const bgAnimation = document.createElement('div');
+        bgAnimation.className = 'bg-animation';
+        guiContainer.appendChild(bgAnimation);
+        
+        guiContainer.innerHTML += `
+            <header class="gui-header">
+                <div class="gui-title">youssef</div>
+                <button class="terminal-toggle" id="terminal-toggle">
+                    ← Back to Terminal
+                </button>
+            </header>
+            <main class="gui-content">
+                <section class="about-section">
+                    <h2>About</h2>
+                    <div class="about-content">
+                        <p>Hardware enthusiast and AI developer passionate about creating innovative solutions. 
+                        Specializing in embedded systems and machine learning applications.</p>
+                    </div>
+                </section>
+                <section class="projects-section">
+                    <h2>Projects</h2>
+                    <div class="projects-grid">
+                        ${this.getProjects().map(project => `
+                            <div class="project-card">
+                                <h3>${project.name}</h3>
+                                <p>${project.description}</p>
+                                <div class="project-tech">${project.technologies || ''}</div>
+                                ${project.links && Array.isArray(project.links) && project.links.length ?
+                                    project.links.map(link => `<a href="${link.url}" target="_blank" class="project-link">${link.label}</a>`).join(' ')
+                                    : (project.link ? `<a href="${project.link}" target="_blank" class="project-link">View on GitHub</a>` : '')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+                <section class="skills-section">
+                    <h2>Skills</h2>
+                    <div class="skills-grid">
+                        ${this.getGroupedSkills(this.getSkills()).map(group => `
+                            <div class="skill-group" data-category="${group.category}">
+                                <div class="skill-group-header">
+                                    <span class="skill-category">${group.category}</span>
+                                    <span class="skill-count">${group.skills.length} skills</span>
+                                </div>
+                                <div class="skill-group-preview">
+                                    ${group.skills.slice(0, 3).map(skill => `
+                                        <span class="skill-tag">${skill.name}</span>
+                                    `).join('')}
+                                    ${group.skills.length > 3 ? `<span class="skill-more">+${group.skills.length - 3}</span>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+                <section class="contact-section">
+                    <h2>Contact</h2>
+                    <form class="contact-form" onsubmit="return terminal.handleContactForm(event)">
+                        <input type="text" name="name" placeholder="Name" required>
+                        <input type="tel" name="phone" placeholder="Phone Number" required>
+                        <textarea name="message" placeholder="Message" required></textarea>
+                        <button type="submit">Send Message</button>
+                    </form>
+                </section>
+            </main>
+            <footer class="gui-footer">
+                <div class="social-links">
+                    <a href="mailto:yusfrdwn@outlook.com" target="_blank"><i class="fas fa-envelope"></i></a>
+                    <a href="https://instagram.com/_youssefradwan" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://t.me/+201557922729" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://wa.me/201557922729" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://github.com/u0sf" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+            </footer>
+        `;
+        
+        // Hide terminal
+        this.terminal.style.display = 'none';
+        
+        // Add GUI to body
+        document.body.appendChild(guiContainer);
+        
+        // Initialize background animation
+        this.initBackgroundAnimation();
+
+        // Add click event listeners to skill groups
+        const skillGroups = document.querySelectorAll('.skill-group');
+        skillGroups.forEach(group => {
+            group.addEventListener('click', () => {
+                const category = group.getAttribute('data-category');
+                this.showSkillDetails(category);
+            });
+        });
+
+        // Add click event listener to terminal toggle button
+        const terminalToggle = document.getElementById('terminal-toggle');
+        terminalToggle.addEventListener('click', () => {
+            this.switchToTerminal();
+        });
+    }
+
+    getProjects() {
+        // Try to get from localStorage, fallback to static
+        try {
+            const stored = JSON.parse(localStorage.getItem('projects'));
+            if (Array.isArray(stored) && stored.length) return stored;
+        } catch {}
+        return this.staticProjects;
+    }
+
+    getSkills() {
+        try {
+            const stored = JSON.parse(localStorage.getItem('skills'));
+            if (Array.isArray(stored) && stored.length) return stored;
+        } catch {}
+        return this.staticSkills;
+    }
+
+    getGroupedSkills(skills = null) {
+        const arr = skills || this.staticSkills;
+        const groups = {
+            'Embedded/Hardware': [],
+            'Programming': [],
+            'AI/ML': [],
+            'Tools & Platforms': [],
+            'Other': []
+        };
+        arr.forEach(skill => {
+            if (skill.category.includes('Embedded') || skill.category.includes('Hardware')) {
+                groups['Embedded/Hardware'].push(skill);
+            } else if (skill.category.includes('Programming')) {
+                groups['Programming'].push(skill);
+            } else if (skill.category.includes('AI')) {
+                groups['AI/ML'].push(skill);
+            } else if (skill.category.includes('Tools')) {
+                groups['Tools & Platforms'].push(skill);
+            } else {
+                groups['Other'].push(skill);
+            }
+        });
+        return Object.entries(groups)
+            .filter(([_, skills]) => skills.length > 0)
+            .map(([category, skills]) => ({ category, skills }));
+    }
+
+    showSkillDetails(category) {
+        const group = this.getGroupedSkills().find(g => g.category === category);
+        if (!group) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'skill-modal';
+        modal.innerHTML = `
+            <div class="skill-modal-content">
+                <div class="skill-modal-header">
+                    <h3>${category}</h3>
+                    <button class="close-modal" onclick="this.closest('.skill-modal').remove()">&times;</button>
+                </div>
+                <div class="skill-modal-body">
+                    ${group.skills.map(skill => `
+                        <div class="skill-detail">
+                            <span class="skill-name">${skill.name}</span>
+                            <div class="skill-level">
+                                ${'&bull;'.repeat(skill.level)}${'&bull;'.repeat(5-skill.level)}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+
+    initBackgroundAnimation() {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'bg-canvas';
+        const bgAnimation = document.querySelector('.bg-animation');
+        bgAnimation.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+        const particleColor = '#00ff00';
+        const particleSize = 2;
+        const particleSpeed = 0.5;
+        const mouseRadius = 150; // منطقة تأثير الماوس
+        let mouse = { x: null, y: null };
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * particleSpeed;
+                this.vy = (Math.random() - 0.5) * particleSpeed;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+            }
+
+            update() {
+                // حساب المسافة بين الجزيء والماوس
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                let forceDirectionX = dx / distance;
+                let forceDirectionY = dy / distance;
+                
+                // منطقة التأثير الأقصى
+                const maxDistance = mouseRadius;
+                let force = (maxDistance - distance) / maxDistance;
+                
+                // إذا كانت المسافة أقل من نصف قطر التأثير
+                if (distance < mouseRadius) {
+                    this.x -= forceDirectionX * force * this.density;
+                    this.y -= forceDirectionY * force * this.density;
+                } else {
+                    // العودة إلى الموقع الأصلي
+                    if (this.x !== this.baseX) {
+                        let dx = this.x - this.baseX;
+                        this.x -= dx/10;
+                    }
+                    if (this.y !== this.baseY) {
+                        let dy = this.y - this.baseY;
+                        this.y -= dy/10;
+                    }
+                }
+
+                // الحركة الطبيعية للجزيئات
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // إعادة الجزيئات إلى الشاشة عند الخروج
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, particleSize, 0, Math.PI * 2);
+                ctx.fillStyle = particleColor;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // رسم الاتصالات بين الجزيئات
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 255, 0, ${0.2 * (1 - distance/100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // تتبع موقع الماوس
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        // إعادة تعيين موقع الماوس عند مغادرة النافذة
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // تحديث حجم الكانفاس عند تغيير حجم النافذة
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+    }
+
+    switchToTerminal() {
+        // Remove GUI mode
+        const guiContainer = document.querySelector('.gui-container');
+        if (guiContainer) {
+            guiContainer.remove();
+        }
+        
+        // Show terminal
+        this.terminal.style.display = 'block';
+        
+        // Update localStorage
+        localStorage.setItem('portfolioMode', 'terminal');
+        
+        // Print welcome message
+        this.printOutput('>> Welcome back to Terminal Mode!');
+    }
+
+    async handleContactForm(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        
+        const message = {
+            name: formData.get('name'),
+            phone: formData.get('phone'),
+            message: formData.get('message')
+        };
+
+        try {
+            // Replace with your actual Telegram bot token and chat ID
+            const botToken = 'YOUR_BOT_TOKEN';
+            const chatId = 'YOUR_CHAT_ID';
+            const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            
+            const response = await fetch(telegramUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: `New Contact Form Submission:\n\nName: ${message.name}\nPhone: ${message.phone}\nMessage: ${message.message}`
+                })
+            });
+
+            if (response.ok) {
+                alert('Message sent successfully!');
+                form.reset();
+            } else {
+                throw new Error('Failed to send message');
+            }
+        } catch (error) {
+            alert('Failed to send message. Please try again later.');
+            console.error('Error sending message:', error);
+        }
+
+        return false;
+    }
+
+    accessDashboard() {
+        this.printOutput('Enter password:');
+        this.input.style.display = 'none';
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'password';
+        passwordInput.className = 'terminal-input';
+        passwordInput.style.width = '100%';
+        this.terminal.appendChild(passwordInput);
+        passwordInput.focus();
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (passwordInput.value === 'admin123') {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    this.printOutput('Invalid password');
+                }
+                passwordInput.remove();
+                this.input.style.display = 'block';
+                this.input.focus();
+            }
+        });
+    }
 }
 
 // Initialize terminal when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const terminal = new Terminal();
+    document.getElementById('addProjectBtn').onclick = () => openProjectModal();
+    document.getElementById('closeProjectModal').onclick = closeProjectModal;
+    document.getElementById('addLinkBtn').onclick = () => addLinkField();
+    document.getElementById('projectForm').onsubmit = saveProjectFromModal;
 }); 
