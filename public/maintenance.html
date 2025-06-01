@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            background: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 800px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .terminal-header {
+            background: #2a2a2a;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .terminal-button.close {
+            background: #ff5f56;
+        }
+
+        .terminal-button.minimize {
+            background: #ffbd2e;
+        }
+
+        .terminal-button.maximize {
+            background: #27c93f;
+        }
+
+        .terminal-title {
+            color: #00ff00;
+            font-size: 14px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .terminal-content {
+            padding: 20px;
+            min-height: 300px;
+            background: #1a1a1a;
+            position: relative;
+        }
+
+        .maintenance-message {
+            color: #00ff00;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 255, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(255, 95, 86, 0.2);
+            color: #ff5f56;
+            border: 1px solid rgba(255, 95, 86, 0.3);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            color: #00ff00;
+        }
+
+        .prompt {
+            color: #00ff00;
+        }
+
+        .command {
+            color: #fff;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <span class="terminal-button close"></span>
+                <span class="terminal-button minimize"></span>
+                <span class="terminal-button maximize"></span>
+            </div>
+            <div class="terminal-title">Terminal Portfolio - Maintenance Mode</div>
+        </div>
+        <div class="terminal-content">
+            <div class="status-badge">System Maintenance</div>
+            <div class="maintenance-message" id="maintenanceMessage">
+                Website is currently under maintenance. Please check back later.
+            </div>
+            <div class="command-line">
+                <span class="prompt">$</span>
+                <span class="command">status</span>
+                <span class="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load maintenance message from localStorage
+        const settings = JSON.parse(localStorage.getItem('maintenanceSettings') || '{"status":"disabled","message":"Website is currently under maintenance. Please check back later."}');
+        document.getElementById('maintenanceMessage').textContent = settings.message;
+    </script>
+</body>
+</html> 

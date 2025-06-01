@@ -44,6 +44,9 @@
                 <li data-section="contact">
                     <i class="fas fa-envelope"></i> Contact
                 </li>
+                <li data-section="maintenance">
+                    <i class="fas fa-tools"></i> Maintenance
+                </li>
             </ul>
         </nav>
 
@@ -122,6 +125,27 @@
                     <button type="submit">Save Contact Info</button>
                 </form>
             </section>
+
+            <!-- Maintenance Section -->
+            <div class="dashboard-section" id="maintenanceSection">
+                <h2>Maintenance Mode</h2>
+                <div class="edit-form">
+                    <form id="maintenanceForm">
+                        <div class="form-group">
+                            <label for="maintenanceStatus">Status</label>
+                            <select id="maintenanceStatus" required>
+                                <option value="enabled">Enabled</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="maintenanceMessage">Message</label>
+                            <textarea id="maintenanceMessage" placeholder="Enter maintenance message..." required></textarea>
+                        </div>
+                        <button type="submit">Save Settings</button>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
 

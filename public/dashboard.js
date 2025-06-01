@@ -1,5 +1,15 @@
 // Dashboard functionality
 document.addEventListener('DOMContentLoaded', () => {
+    // Check maintenance mode
+    const maintenanceSettings = JSON.parse(localStorage.getItem('maintenanceSettings') || '{"status":"disabled","message":"Website is currently under maintenance. Please check back later."}');
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminBypass = urlParams.get('admin') === 'true';
+    
+    if (maintenanceSettings.status === 'enabled' && !adminBypass) {
+        window.location.href = 'maintenance.html';
+        return;
+    }
+
     // Check if user is logged in
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isLoggedIn) {
@@ -93,6 +103,7 @@ function initializeSections() {
     initializeAbout();
     initializeCV();
     initializeContact();
+    initializeMaintenance();
 }
 
 function showSection(sectionId) {
@@ -443,4 +454,28 @@ function loadContactInfo() {
 function saveContactInfo(info) {
     localStorage.setItem('contactInfo', JSON.stringify(info));
     alert('Contact information saved successfully!');
+}
+
+// Maintenance Mode Management
+function initializeMaintenance() {
+    const maintenanceForm = document.getElementById('maintenanceForm');
+    loadMaintenanceSettings();
+
+    maintenanceForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const status = document.getElementById('maintenanceStatus').value;
+        const message = document.getElementById('maintenanceMessage').value;
+        saveMaintenanceSettings({ status, message });
+    });
+}
+
+function loadMaintenanceSettings() {
+    const settings = JSON.parse(localStorage.getItem('maintenanceSettings') || '{"status":"disabled","message":"Website is currently under maintenance. Please check back later."}');
+    document.getElementById('maintenanceStatus').value = settings.status;
+    document.getElementById('maintenanceMessage').value = settings.message;
+}
+
+function saveMaintenanceSettings(settings) {
+    localStorage.setItem('maintenanceSettings', JSON.stringify(settings));
+    alert('Maintenance settings saved successfully!');
 } 
